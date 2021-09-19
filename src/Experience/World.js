@@ -1,5 +1,13 @@
 import * as THREE from 'three'
 import Experience from './Experience.js'
+import Baked from './Baked.js'
+import GoogleLeds from './GoogleLeds.js'
+import LoupedeckButtons from './LoupedeckButtons.js'
+import CoffeeSteam from './CoffeeSteam.js'
+import TopChair from './TopChair.js'
+import ElgatoLight from './ElgatoLight.js'
+import BouncingLogo from './BouncingLogo.js'
+import Screen from './Screen.js'
 
 export default class World
 {
@@ -14,25 +22,64 @@ export default class World
         {
             if(_group.name === 'base')
             {
-                this.setDummy()
-                // this.setRoom()
+                this.setBaked()
+                this.setGoogleLeds()
+                this.setLoupedeckButtons()
+                this.setCoffeeSteam()
+                this.setTopChair()
+                this.setElgatoLight()
+                this.setBouncingLogo()
+                this.setScreens()
             }
         })
     }
 
-    setDummy()
+    setBaked()
     {
-        const cube = new THREE.Mesh(
-            new THREE.BoxGeometry(1, 1, 1),
-            new THREE.MeshBasicMaterial({ map: this.resources.items.lennaTexture })
-        )
-        this.scene.add(cube)        
+        this.baked = new Baked()
     }
 
-    // setRoom()
-    // {
+    setGoogleLeds()
+    {
+        this.googleLeds = new GoogleLeds()
+    }
 
-    // }
+    setLoupedeckButtons()
+    {
+        this.loupedeckButtons = new LoupedeckButtons()
+    }
+
+    setCoffeeSteam()
+    {
+        this.coffeeSteam = new CoffeeSteam()
+    }
+
+    setTopChair()
+    {
+        this.topChair = new TopChair()
+    }
+
+    setElgatoLight()
+    {
+        this.elgatoLight = new ElgatoLight()
+    }
+
+    setBouncingLogo()
+    {
+        this.bouncingLogo = new BouncingLogo()
+    }
+
+    setScreens()
+    {
+        this.pcScreen = new Screen(
+            this.resources.items.pcScreenModel.scene.children[0],
+            '/assets/videoPortfolio.mp4'
+        )
+        this.macScreen = new Screen(
+            this.resources.items.macScreenModel.scene.children[0],
+            '/assets/videoStream.mp4'
+        )
+    }
 
     resize()
     {
@@ -40,6 +87,20 @@ export default class World
 
     update()
     {
+        if(this.googleLeds)
+            this.googleLeds.update()
+
+        if(this.loupedeckButtons)
+            this.loupedeckButtons.update()
+
+        if(this.coffeeSteam)
+            this.coffeeSteam.update()
+
+        if(this.topChair)
+            this.topChair.update()
+
+        if(this.bouncingLogo)
+            this.bouncingLogo.update()
     }
 
     destroy()
