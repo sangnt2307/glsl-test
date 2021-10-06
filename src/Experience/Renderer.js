@@ -2,6 +2,8 @@ import * as THREE from 'three'
 import Experience from './Experience.js'
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js'
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js'
+import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js'
+import { CustomShader } from './shaders/CustomShader.js'
 
 export default class Renderer
 {
@@ -16,15 +18,50 @@ export default class Renderer
         this.scene = this.experience.scene
         this.camera = this.experience.camera
         
-        this.usePostprocess = false
+        if(this.debug)
+        {
+            this.debugFolder = this.debug.addFolder({
+                title: 'Settings',
+                expanded: true
+            })
+        }
 
+        this.usePostprocess = true
+
+        this.setSettings()
         this.setInstance()
         this.setPostProcess()
+
+        
+    }
+
+    setSettings()
+    {
+        this.settings = {
+            progress: 1,
+            scale: 2.663,
+        }
+
+        if(this.debug)
+        {
+            this.debugFolder
+            .addInput(
+                this.settings,
+                'progress',
+                { min: 0, max: 1, step: 0.001, label: 'progress' }
+            )
+            this.debugFolder
+            .addInput(
+                this.settings,
+                'scale',
+                { min: 1, max: 10, step: 0.001, label: 'scale' }
+            )
+        }
     }
 
     setInstance()
     {
-        this.clearColor = '#010101'
+        this.clearColor = '#0C002D'
 
         // Renderer
         this.instance = new THREE.WebGLRenderer({
@@ -44,9 +81,10 @@ export default class Renderer
 
         // this.instance.physicallyCorrectLights = true
         // this.instance.gammaOutPut = true
-        this.instance.outputEncoding = THREE.sRGBEncoding
+        // this.instance.outputEncoding = THREE.sRGBEncoding
         // this.instance.shadowMap.type = THREE.PCFSoftShadowMap
         // this.instance.shadowMap.enabled = false
+        // this.instance.toneMapping = THREE.ReinhardToneMapping
         // this.instance.toneMapping = THREE.ReinhardToneMapping
         // this.instance.toneMappingExposure = 1.3
 
@@ -89,6 +127,11 @@ export default class Renderer
         this.postProcess.composer.setPixelRatio(this.config.pixelRatio)
 
         this.postProcess.composer.addPass(this.postProcess.renderPass)
+
+        // CUSTOM PASS
+        this.postProcess.CustomShaderPass = new ShaderPass(CustomShader)
+        console.log(this.postProcess.CustomShaderPass)
+        this.postProcess.composer.addPass(this.postProcess.CustomShaderPass)
     }
 
     resize()
@@ -112,6 +155,9 @@ export default class Renderer
         if(this.usePostprocess)
         {
             this.postProcess.composer.render()
+            this.postProcess.CustomShaderPass.uniforms.uTime.value = this.time.elapsed*.0005
+            this.postProcess.CustomShaderPass.uniforms.uProgress.value = this.settings.progress
+            this.postProcess.CustomShaderPass.uniforms.uScale.value = this.settings.scale
         }
         else
         {
